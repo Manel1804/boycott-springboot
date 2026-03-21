@@ -17,5 +17,17 @@ pipeline {
                 sh 'docker build -t boycott-backend:dev .'
             }
         }
+
+        stage('Tag Docker Image') {
+            steps {
+                sh 'docker tag boycott-backend:dev manel1804/boycott-backend:dev'
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                sh 'docker push manel1804/boycott-backend:dev'
+            }
+        }
     }
 }
