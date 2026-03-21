@@ -12,6 +12,12 @@ pipeline {
             }
         }
 
+        stage('SonarQube Analysis') {
+            steps {
+                sh 'mvn sonar:sonar -Dsonar.projectKey=boycott-springboot -Dsonar.projectName=boycott-springboot -Dsonar.host.url=http://localhost:9000 -Dsonar.login=NOUVEAU_TOKEN_SONAR'
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 sh 'docker build -t boycott-backend:dev .'
