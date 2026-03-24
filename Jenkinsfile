@@ -14,7 +14,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                sh 'mvn sonar:sonar -Dsonar.projectKey=boycott-springboot -Dsonar.projectName=boycott-springboot -Dsonar.host.url=http://localhost:9000 -Dsonar.login=squ_21f275575117e26d44a9d875f8f08dc428ec87b7'
+                sh 'mvn sonar:sonar -Dsonar.projectKey=boycott-springboot -Dsonar.projectName=boycott-springboot -Dsonar.host.url=http://localhost:9000 -Dsonar.login=squ_2c4f57135b090a2bf18d83aabea027ad14eec9ab'
             }
         }
 
