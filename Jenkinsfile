@@ -3,10 +3,20 @@ pipeline {
 
     tools {
         jdk 'jdk17'
-        maven 'M2_HOME'
+        maven 'maven3'
+    }
+
+    environment {
+        IMAGE_NAME = 'manel1804/boycott-backend:dev'
     }
 
     stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
         stage('Build Maven') {
             steps {
                 sh 'mvn clean package -DskipTests'
@@ -15,26 +25,43 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                sh 'mvn sonar:sonar -Dsonar.projectKey=boycott-springboot -Dsonar.projectName=boycott-springboot -Dsonar.host.url=http://localhost:9000 -Dsonar.login=squ_2c4f57135b090a2bf18d83aabea027ad14eec9ab'
+                withSonarQubeEnv('SonarQube') {
+                    sh '''
+                        mvn sonar:sonar \
+                        -Dsonar.projectKey=boycott-springboot \
+                        -Dsonar.projectName=boycott-springboot
+                    '''
+                }
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t boycott-backend:dev .'
+                sh 'docker build -t $IMAGE_NAME .'
             }
         }
 
-        stage('Tag Docker Image') {
+        stage('Docker Hub Login') {
             steps {
-                sh 'docker tag boycott-backend:dev manel1804/boycott-backend:dev'
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
+                }
             }
         }
 
         stage('Push Docker Image') {
             steps {
-                sh 'docker push manel1804/boycott-backend:dev'
+                sh 'docker push $IMAGE_NAME'
             }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline termine avec succes'
+        }
+        failure {
+            echo 'Pipeline echoue'
         }
     }
 }
